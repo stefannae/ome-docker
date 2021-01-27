@@ -1,14 +1,15 @@
-FROM java:7
-MAINTAINER ome-devel@lists.openmicroscopy.org.uk
+FROM openjdk:16-slim-buster
 
-RUN apt-get install -y curl
-RUN curl -o bftools.zip $(curl -Ls -o /dev/null -w %{url_effective} http://downloads.openmicroscopy.org/latest/bio-formats)/artifacts/bftools.zip
+RUN apt-get update && apt-get install -y \
+    curl \
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get install -y unzip
-RUN unzip -d /opt bftools.zip && rm bftools.zip
-RUN chmod a+rx /opt/bftools/*
-
-RUN useradd -m bf
+RUN curl -o bftools.zip $(curl -Ls -o /dev/null -w %{url_effective} http://downloads.openmicroscopy.org/latest/bio-formats)/artifacts/bftools.zip \
+    && unzip -d /opt bftools.zip \
+    && rm bftools.zip \
+    && chmod a+rx /opt/bftools/* \
+    && useradd -m bf
 
 USER bf
 RUN echo 'export PATH=/opt/bftools:$PATH' >> /home/bf/.bashrc
